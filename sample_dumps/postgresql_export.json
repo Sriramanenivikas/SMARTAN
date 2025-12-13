@@ -1,0 +1,56 @@
+[
+  {
+    "id": "83374c4d-d29b-42cd-b65d-ef2c9fb23fcf",
+    "imageId": "693ae90f02d519bc4c6f6ae1",
+    "filename": "9692f11b-cb87-4ba2-b7ad-40427ec9399c.jpg",
+    "keypoints": "[33 keypoints...]",
+    "keypointCount": 33,
+    "processingTime": 296.64,
+    "confidence": 0.9043,
+    "metadata": {
+      "mimeType": "image/jpeg",
+      "imageWidth": 640,
+      "imageHeight": 425,
+      "originalName": "fitness_pose.jpg"
+    },
+    "createdAt": "2025-12-11T15:53:51.110Z",
+    "updatedAt": "2025-12-11T15:53:51.110Z"
+  },
+  {
+    "id": "625fa007-abf2-4528-9ae1-dc55179284c2",
+    "imageId": "693ae90602d519bc4c6f6ade",
+    "filename": "71df57de-9b5d-4542-a164-58dd9009f134.jpg",
+    "keypoints": "[33 keypoints...]",
+    "keypointCount": 33,
+    "processingTime": 299.15,
+    "confidence": 0.7758,
+    "metadata": {
+      "mimeType": "image/jpeg",
+      "imageWidth": 640,
+      "imageHeight": 427,
+      "originalName": "exercise_pose.jpg"
+    },
+    "createdAt": "2025-12-11T15:53:42.789Z",
+    "updatedAt": "2025-12-11T15:53:42.789Z"
+  },
+  {
+    "id": "17e350c4-4528-44b3-8a97-a52d4dcf518a",
+    "imageId": "693ae8f602d519bc4c6f6adb",
+    "filename": "6aea5dc5-0b23-49d0-b387-d9bde413cb23.jpg",
+    "keypoints": "[33 keypoints...]",
+    "keypointCount": 33,
+    "processingTime": 343.85,
+    "confidence": 0.803,
+    "metadata": {
+      "label": "Yoga Pose",
+      "notes": "Great visibility",
+      "category": "fitness",
+      "mimeType": "image/jpeg",
+      "imageWidth": 640,
+      "imageHeight": 427,
+      "originalName": "yoga_pose.jpg"
+    },
+    "createdAt": "2025-12-11T15:53:26.937Z",
+    "updatedAt": "2025-12-11T15:54:13.513Z"
+  }
+]

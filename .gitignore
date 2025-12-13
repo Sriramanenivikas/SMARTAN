@@ -1,8 +1,39 @@
+# Dependencies
 node_modules/
+
+# Environment files
 .env
+.env.local
+
+# Uploaded files (keep directory structure)
 uploads/*
 !uploads/.gitkeep
+
+# Backup files (keep directory structure)
 backup/*
 !backup/.gitkeep
+
+# Test images (keep for demonstration)
+# test_images/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Logs
 *.log
+npm-debug.log*
+
+# OS files
 .DS_Store
+Thumbs.db
+
+# Build outputs
+dist/
+build/

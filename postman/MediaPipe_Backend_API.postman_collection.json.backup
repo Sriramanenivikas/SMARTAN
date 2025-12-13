@@ -1,0 +1,932 @@
+{
+	"info": {
+		"_postman_id": "mediapipe-backend-collection",
+		"name": "MediaPipe Keypoint Backend API",
+		"description": "Full-stack backend system for keypoint extraction using MediaPipe.\n\n## Features\n- Extract 33 body keypoints from images using MediaPipe Pose\n- Store keypoints in PostgreSQL\n- Store images in MongoDB\n- Full CRUD operations\n- Daily automated backups with email notifications\n\n## Setup\n1. Start PostgreSQL and MongoDB\n2. Run `npm start`\n3. Import this collection into Postman\n4. Set `base_url` variable to `http://localhost:3000`",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:3000",
+			"type": "string"
+		},
+		{
+			"key": "keypoint_id",
+			"value": "",
+			"type": "string"
+		},
+		{
+			"key": "image_id",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Health & Info",
+			"item": [
+				{
+					"name": "Health Check",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response has correct structure', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('status');",
+									"    pm.expect(jsonData).to.have.property('timestamp');",
+									"    pm.expect(jsonData).to.have.property('uptime');",
+									"});",
+									"",
+									"pm.test('✅ Server status is OK', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.status).to.equal('OK');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/health",
+							"host": ["{{base_url}}"],
+							"path": ["health"]
+						},
+						"description": "Check if the server is running and healthy."
+					},
+					"response": []
+				},
+				{
+					"name": "API Info",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response has API metadata', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('name');",
+									"    pm.expect(jsonData).to.have.property('version');",
+									"    pm.expect(jsonData).to.have.property('endpoints');",
+									"});",
+									"",
+									"pm.test('✅ Contains pose endpoints', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.endpoints).to.have.property('pose');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api",
+							"host": ["{{base_url}}"],
+							"path": ["api"]
+						},
+						"description": "Get API information and available endpoints."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Pose Extraction",
+			"item": [
+				{
+					"name": "Extract Pose from Image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"if (jsonData.success && jsonData.data) {",
+									"    pm.collectionVariables.set('keypoint_id', jsonData.data.keypointId);",
+									"    pm.collectionVariables.set('image_id', jsonData.data.imageId);",
+									"    console.log('Saved keypoint_id:', jsonData.data.keypointId);",
+									"    console.log('Saved image_id:', jsonData.data.imageId);",
+									"}",
+									"",
+									"pm.test('✅ Status code is 201', function() {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has 33 keypoints', function() {",
+									"    pm.expect(jsonData.data.keypoints).to.be.an('array');",
+									"    pm.expect(jsonData.data.keypointCount).to.equal(33);",
+									"});",
+									"",
+									"pm.test('✅ Has processing time', function() {",
+									"    pm.expect(jsonData.data).to.have.property('processingTime');",
+									"});",
+									"",
+									"pm.test('✅ Has keypoint ID', function() {",
+									"    pm.expect(jsonData.data).to.have.property('keypointId');",
+									"});",
+									"",
+									"pm.test('✅ Has image ID', function() {",
+									"    pm.expect(jsonData.data).to.have.property('imageId');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "",
+									"description": "Select an image file containing a person"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/extract-pose",
+							"host": ["{{base_url}}"],
+							"path": ["api", "extract-pose"]
+						},
+						"description": "Extract 33 body keypoints from an uploaded image using MediaPipe Pose.\n\n**Request:**\n- Content-Type: multipart/form-data\n- Body: image file (JPEG, PNG, WebP)\n\n**Response:**\n- Keypoint coordinates (x, y, z)\n- Visibility scores\n- Pixel coordinates\n- Processing time"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Keypoints (PostgreSQL)",
+			"item": [
+				{
+					"name": "Get All Keypoints",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has data array', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('✅ Has pagination info', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('pagination');",
+									"    pm.expect(jsonData.pagination).to.have.property('total');",
+									"    pm.expect(jsonData.pagination).to.have.property('page');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/keypoints?page=1&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "keypoints"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Retrieve all keypoint records from PostgreSQL with pagination."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Keypoint by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has keypoint data', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('id');",
+									"    pm.expect(jsonData.data).to.have.property('keypoints');",
+									"});",
+									"",
+									"pm.test('✅ Keypoints is an array', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data.keypoints).to.be.an('array');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/keypoints/{{keypoint_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "keypoints", "{{keypoint_id}}"]
+						},
+						"description": "Retrieve a specific keypoint record by its UUID."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Keypoint Metadata",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has updated data', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('data');",
+									"});",
+									"",
+									"pm.test('✅ Has message', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"metadata\": {\n        \"label\": \"Standing Pose\",\n        \"notes\": \"Good visibility score\",\n        \"category\": \"fitness\"\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/keypoints/{{keypoint_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "keypoints", "{{keypoint_id}}"]
+						},
+						"description": "Update metadata for an existing keypoint record."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Keypoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has message', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/keypoints/{{keypoint_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "keypoints", "{{keypoint_id}}"]
+						},
+						"description": "Delete a keypoint record and its associated image."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Images (MongoDB)",
+			"item": [
+				{
+					"name": "Get All Images",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has data array', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('✅ Has pagination info', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('pagination');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/images?page=1&limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "images"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Retrieve all image metadata from MongoDB (without binary data)."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Image Info by ID",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has image data', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('_id');",
+									"    pm.expect(jsonData.data).to.have.property('filename');",
+									"    pm.expect(jsonData.data).to.have.property('originalName');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/images/{{image_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "images", "{{image_id}}"]
+						},
+						"description": "Get image metadata by MongoDB ObjectId."
+					},
+					"response": []
+				},
+				{
+					"name": "Get Image File (Binary)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Content-Type is image', function() {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('image');",
+									"});",
+									"",
+									"pm.test('✅ Has Content-Disposition header', function() {",
+									"    pm.expect(pm.response.headers.has('Content-Disposition')).to.be.true;",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/images/{{image_id}}/file",
+							"host": ["{{base_url}}"],
+							"path": ["api", "images", "{{image_id}}", "file"]
+						},
+						"description": "Retrieve the actual image binary data. Opens in browser."
+					},
+					"response": []
+				},
+				{
+					"name": "Download Image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Content-Type is image', function() {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('image');",
+									"});",
+									"",
+									"pm.test('✅ Has attachment disposition', function() {",
+									"    var disposition = pm.response.headers.get('Content-Disposition');",
+									"    pm.expect(disposition).to.include('attachment');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/images/{{image_id}}/download",
+							"host": ["{{base_url}}"],
+							"path": ["api", "images", "{{image_id}}", "download"]
+						},
+						"description": "Download the image file as an attachment."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Image Metadata",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has message', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"metadata\": {\n        \"description\": \"Fitness pose image\",\n        \"tags\": [\"yoga\", \"exercise\", \"fitness\"]\n    }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/images/{{image_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "images", "{{image_id}}"]
+						},
+						"description": "Update metadata for an existing image."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has message', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/images/{{image_id}}",
+							"host": ["{{base_url}}"],
+							"path": ["api", "images", "{{image_id}}"]
+						},
+						"description": "Delete an image from MongoDB."
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Backup & Email",
+			"item": [
+				{
+					"name": "Create Backup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 201', function() {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has backup filename', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('filename');",
+									"});",
+									"",
+									"pm.test('✅ Has backup size', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.have.property('size');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sendEmail\": false\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/backup",
+							"host": ["{{base_url}}"],
+							"path": ["api", "backup"]
+						},
+						"description": "Create a ZIP backup of all database contents.\n\nSet `sendEmail: true` to send the backup via email."
+					},
+					"response": []
+				},
+				{
+					"name": "Create Backup with Email",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 201 or 500 (email may fail)', function() {",
+									"    pm.expect(pm.response.code).to.be.oneOf([201, 500]);",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    pm.test('✅ Backup created successfully', function() {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"    });",
+									"} else {",
+									"    pm.test('❌ Email failed (check SMTP config)', function() {",
+									"        console.log('Email sending failed - SMTP credentials may be invalid');",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sendEmail\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/backup",
+							"host": ["{{base_url}}"],
+							"path": ["api", "backup"]
+						},
+						"description": "Create backup and send it via email."
+					},
+					"response": []
+				},
+				{
+					"name": "List All Backups",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has data array', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('✅ Has count property', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('count');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/backup",
+							"host": ["{{base_url}}"],
+							"path": ["api", "backup"]
+						},
+						"description": "List all available backup files."
+					},
+					"response": []
+				},
+				{
+					"name": "Download Backup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Content-Type is application/zip', function() {",
+									"    pm.expect(pm.response.headers.get('Content-Type')).to.include('application/zip');",
+									"});",
+									"",
+									"pm.test('✅ Has attachment disposition', function() {",
+									"    var disposition = pm.response.headers.get('Content-Disposition');",
+									"    pm.expect(disposition).to.include('attachment');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/backup/2024-01-15-backup.zip",
+							"host": ["{{base_url}}"],
+							"path": ["api", "backup", "2024-01-15-backup.zip"]
+						},
+						"description": "Download a specific backup ZIP file.\n\nReplace filename with actual backup name from list."
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Backup",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has message', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/backup/2024-01-15-backup.zip",
+							"host": ["{{base_url}}"],
+							"path": ["api", "backup", "2024-01-15-backup.zip"]
+						},
+						"description": "Delete a specific backup file."
+					},
+					"response": []
+				},
+				{
+					"name": "Clean Old Backups",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('✅ Status code is 200', function() {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('✅ Response is successful', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('✅ Has deleted count', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('deletedCount');",
+									"});",
+									"",
+									"pm.test('✅ Has message', function() {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData).to.have.property('message');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"keepDays\": 7\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/backup/clean",
+							"host": ["{{base_url}}"],
+							"path": ["api", "backup", "clean"]
+						},
+						"description": "Delete backups older than specified days."
+					},
+					"response": []
+				},
+				{
+					"name": "Test Email Configuration",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    pm.test('✅ Email test passed', function() {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData.success).to.be.true;",
+									"    });",
+									"    ",
+									"    pm.test('✅ Has email info', function() {",
+									"        var jsonData = pm.response.json();",
+									"        pm.expect(jsonData.data).to.have.property('messageId');",
+									"    });",
+									"} else {",
+									"    pm.test('❌ Email test failed - Check SMTP credentials', function() {",
+									"        var jsonData = pm.response.json();",
+									"        console.log('Email error:', jsonData.error);",
+									"        pm.expect(jsonData.success).to.be.false;",
+									"    });",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/backup/test-email",
+							"host": ["{{base_url}}"],
+							"path": ["api", "backup", "test-email"]
+						},
+						"description": "Send a test email to verify SMTP configuration."
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

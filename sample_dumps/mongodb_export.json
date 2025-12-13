@@ -1,13 +1,44 @@
 [
   {
-    "_id": "507f1f77bcf86cd799439011",
-    "filename": "sample.jpg",
-    "originalName": "test.jpg",
+    "_id": "693ae90f02d519bc4c6f6ae1",
+    "filename": "9692f11b-cb87-4ba2-b7ad-40427ec9399c.jpg",
+    "originalName": "fitness_pose.jpg",
     "mimeType": "image/jpeg",
-    "size": 256789,
-    "width": 1920,
-    "height": 1080,
-    "keypointId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
-    "createdAt": "2024-01-15T10:30:00.000Z"
+    "size": 28393,
+    "width": 640,
+    "height": 425,
+    "uploadedAt": "2025-12-11T15:53:51.108Z",
+    "createdAt": "2025-12-11T15:53:51.108Z",
+    "updatedAt": "2025-12-11T15:53:51.113Z",
+    "__v": 0,
+    "keypointId": "83374c4d-d29b-42cd-b65d-ef2c9fb23fcf"
+  },
+  {
+    "_id": "693ae90602d519bc4c6f6ade",
+    "filename": "71df57de-9b5d-4542-a164-58dd9009f134.jpg",
+    "originalName": "exercise_pose.jpg",
+    "mimeType": "image/jpeg",
+    "size": 38901,
+    "width": 640,
+    "height": 427,
+    "uploadedAt": "2025-12-11T15:53:42.786Z",
+    "createdAt": "2025-12-11T15:53:42.787Z",
+    "updatedAt": "2025-12-11T15:53:42.822Z",
+    "__v": 0,
+    "keypointId": "625fa007-abf2-4528-9ae1-dc55179284c2"
+  },
+  {
+    "_id": "693ae8f602d519bc4c6f6adb",
+    "filename": "6aea5dc5-0b23-49d0-b387-d9bde413cb23.jpg",
+    "originalName": "yoga_pose.jpg",
+    "mimeType": "image/jpeg",
+    "size": 25158,
+    "width": 640,
+    "height": 427,
+    "uploadedAt": "2025-12-11T15:53:26.930Z",
+    "createdAt": "2025-12-11T15:53:26.932Z",
+    "updatedAt": "2025-12-11T15:53:26.978Z",
+    "__v": 0,
+    "keypointId": "17e350c4-4528-44b3-8a97-a52d4dcf518a"
   }
 ]
