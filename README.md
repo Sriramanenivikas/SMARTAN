@@ -82,6 +82,8 @@ curl http://localhost:3000/health
    - Get All Keypoints
    - Get All Images
    - Create Backup
+   - 
+<img width="1280" height="832" alt="image" src="https://github.com/user-attachments/assets/2d15a859-4439-4098-83e8-9e8486e7443f" />
 
 ## Project Structure
 
